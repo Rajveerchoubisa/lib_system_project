@@ -12,11 +12,14 @@ import MyProfile from "./pages/MyProfile.jsx";
 import BookingForm from "./pages/BookingForm.jsx";
 import Payment from "./pages/Payment.jsx";
 import Success from "./pages/Success.jsx";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 
 export default function App() {
   return (
     <>
+    <ToastContainer position="top-center" autoClose={3000} />
    
     <Routes>
       <Route path="/" element={<LandingPage />} />

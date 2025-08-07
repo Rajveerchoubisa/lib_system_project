@@ -19,7 +19,7 @@ export const registerUser = async (req, res) => {
       token: generateToken(user._id),
     });
   } catch (error) {
-    console.error("Register Error:", error.message); // 👈 log it
+    // console.error("Register Error:", error.message); // 👈 log it
     res.status(500).json({ message: "Server Error" });
   }
 };
@@ -34,7 +34,7 @@ export const loginUser = async (req, res) => {
       return res.status(401).json({ message: "User Not found" });
     }
     if (!(await user.matchPassword(password))) {
-      return res.status(401).json({ message: "Invalid credentials" });
+      return res.status(401).json({ message: "Please Enter the Correct Password" });
     }
 
     res.json({
@@ -51,16 +51,19 @@ export const loginUser = async (req, res) => {
 export const getProfile = async (req, res) => {
   try {
     const userId = req.user.id;
+    
+    if (!userId) {
+      return res.status(401).json({ message: "Please log in to access the profile" });
+    }
 
     const user = await User.findById(userId).select("-password");
-    console.log(user);
     if (!user) {
       return res.status(404).json({ message: "No Profile Found" });
     }
 
     res.status(200).json(user);
   } catch (error) {
-    console.error("Error fetching profile:", error.message);
+    // console.error("Error fetching profile:", error.message);
     return res.status(500).json({ message: "Server Error" });
   }
 };

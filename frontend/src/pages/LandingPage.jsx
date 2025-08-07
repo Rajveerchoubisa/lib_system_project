@@ -8,7 +8,7 @@ export default function Landing() {
     <div className="min-h-screen bg-gradient-to-tr from-[#0f0c29] via-[#302b63] to-[#24243e] text-white font-sans">
       <LoginNavbar />
 
-      <div className="pt-28 max-w-7xl mx-auto px-6 pb-20 flex flex-col lg:flex-row items-center justify-between gap-16">
+      <div className="pt-35 max-w-7xl mx-auto px-6 pb-20 flex flex-col lg:flex-row items-center justify-between gap-16">
         {/* Hero Section */}
         <motion.div
           className="max-w-2xl"
@@ -19,9 +19,17 @@ export default function Landing() {
           <h1 className="text-4xl md:text-6xl font-extrabold leading-tight mb-6 tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">
             Reserve. Relax. Read.
           </h1>
-          <p className="text-lg md:text-xl text-white/80 mb-10 max-w-lg">
-            Experience a smarter way to book your library seat. Our system lets you book live, view room layouts, make payments, and download receipts – all in one place.
+          <p className="text-lg md:text-xl text-white/80 mb-10 max-w-xl leading-relaxed">
+            Discover a smarter way to manage your library time. Seamlessly{" "}
+            <span className="text-orange-400 font-semibold">
+              book your seat 
+            </span>
+            , explore your favorite{" "}
+            <span className="text-orange-400 font-semibold">books</span>, make
+            quick payments, and easily download receipts – all from one
+            intuitive platform.
           </p>
+
           <Link to="/login">
             <motion.button
               whileHover={{ scale: 1.05 }}
@@ -40,7 +48,9 @@ export default function Landing() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.7, delay: 0.2 }}
         >
-          <h3 className="text-2xl font-bold mb-6 text-white text-center">Why SmartLibrary?</h3>
+          <h3 className="text-2xl font-bold mb-6 text-white text-center">
+            Why SmartLibrary?
+          </h3>
           <div className="space-y-6">
             <Feature
               icon={<BookOpenCheck className="w-6 h-6" />}
@@ -73,7 +83,9 @@ function Feature({ icon, title, desc }) {
       viewport={{ once: true }}
       transition={{ duration: 0.5 }}
     >
-      <div className="bg-white text-indigo-600 p-2 rounded-md shadow-sm">{icon}</div>
+      <div className="bg-white text-indigo-600 p-2 rounded-md shadow-sm">
+        {icon}
+      </div>
       <div>
         <h4 className="font-semibold text-white text-lg">{title}</h4>
         <p className="text-white/70 text-sm">{desc}</p>

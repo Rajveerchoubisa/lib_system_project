@@ -11,6 +11,7 @@ export default function DashboardNavbar() {
 
   const handleLogOut = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('userInfo');
     delete axios.defaults.headers.common['Authorization'];
     navigate("/login");
   }

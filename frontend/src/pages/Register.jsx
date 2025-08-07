@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaUser, FaEnvelope, FaLock } from "react-icons/fa";
 import axios from "axios";
 import LoginNavbar from "../components/LoginNavbar.jsx";
+import { toast } from "react-toastify";
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -21,10 +22,16 @@ export default function Register() {
         password,
       });
 
+
       localStorage.setItem("userInfo", JSON.stringify(res.data));
-      navigate("/dashboard");
+      toast.success("Registration successful! You can now log in.");
+      setTimeout(() => {
+        navigate("/login");
+      }, 1000);
+      
+      
     } catch (error) {
-      alert(error.response?.data?.message || "Registration failed");
+      toast.error(error.response?.data?.message || "Registration failed");
     }
   };
 

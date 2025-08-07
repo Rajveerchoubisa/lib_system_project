@@ -8,7 +8,7 @@ import protect from "../middlewares/auth.js"
 const router = express.Router()
 
 // Use controller here
-router.post('/book',protect,  createBooking);
+router.post('/book',protect, createBooking);
 router.put("/:id/pay", updatePaymentStatus);
 router.get("/my",protect, async (req, res) => {
   try {

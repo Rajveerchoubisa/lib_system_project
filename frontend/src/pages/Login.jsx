@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaEnvelope, FaLock } from "react-icons/fa";
 import axios from "axios";
 import LoginNavbar from "../components/LoginNavbar.jsx";
+import { toast } from "react-toastify";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -17,12 +18,18 @@ export default function Login() {
         email,
         password,
       });
+      toast.success("You have successfully logged in!");
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 500);
 
       localStorage.setItem("token", res.data.token);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
-      navigate("/dashboard");
+      localStorage.setItem("userInfo", JSON.stringify(res.data));
+      axios.defaults.headers.common[
+        "Authorization"
+      ] = `Bearer ${res.data.token}`;
     } catch (error) {
-      alert(error.response?.data?.message || "Login failed");
+      toast.error(error.response?.data?.message || "Login failed");
     }
   };
 

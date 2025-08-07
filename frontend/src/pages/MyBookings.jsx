@@ -99,6 +99,7 @@ import { motion } from "framer-motion";
 import { CalendarCheck, Clock, MapPin } from "lucide-react";
 import axios from "axios";
 import Navbar from "../components/Navbar";
+import { toast } from "react-toastify";
 
 export default function MyBookings() {
   const [bookings, setBookings] = useState([]);
@@ -115,7 +116,7 @@ export default function MyBookings() {
         });
         setBookings(data.bookings || []);
       } catch (error) {
-        console.error("Failed to fetch bookings:", error);
+        toast.error("Failed to fetch bookings: " + (error.response?.data?.message || "Unknown error"));
         setBookings([]);
       } finally {
         setLoading(false);
@@ -133,7 +134,10 @@ export default function MyBookings() {
 
         <div className="max-w-4xl mx-auto space-y-6">
           {loading ? (
-            <p className="text-center text-white/70">Loading your bookings...</p>
+            <div className="flex flex-col items-center justify-center h-40">
+              <p className="text-center text-white/70">Loading your bookings...</p>
+              <div className="w-10 h-10 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+            </div>
           ) : bookings.length === 0 ? (
             <p className="text-center text-white/70">You have no bookings yet.</p>
           ) : (

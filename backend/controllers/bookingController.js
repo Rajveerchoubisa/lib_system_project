@@ -1,4 +1,5 @@
 import Booking from "../models/booking.js";
+import mongoose from "mongoose";
 
 import dotenv from "dotenv";
 dotenv.config();
@@ -10,18 +11,18 @@ const createBooking = async (req, res) => {
     const { joiningDate } = req.body;
      const months = parseInt(req.body.months);
     const userId = req.user._id;
-    console.log("👉 Body:", req.body);
-   console.log("👉 User:", req.user);
+  //   console.log("👉 Body:", req.body);
+  //  console.log("👉 User:", req.user);
 
     if (!joiningDate || !months) {
-      return res.status(400).json({ success: false, message: "Missing fields" });
+      return res.status(400).json({ success: false, message: "Please enter the required fields" });
     }
 
     if (isNaN(months) || !Date.parse(joiningDate)) {
       return res.status(400).json({ success: false, message: "Invalid input data" });
     }
 
-    const existingBooking = await Booking.findOne({ userId});
+    const existingBooking = await Booking.findOne({ userId });
     console.log("👉 Existing Booking:", existingBooking);
     if (existingBooking) {
       return res
@@ -29,7 +30,7 @@ const createBooking = async (req, res) => {
         .json({ success: false, message: "User already has a booking" });
     }
 
-    const PRICE_PER_MONTH = 500;
+    const PRICE_PER_MONTH = 750;
     const price = months * PRICE_PER_MONTH;
 
     const booking = new Booking({

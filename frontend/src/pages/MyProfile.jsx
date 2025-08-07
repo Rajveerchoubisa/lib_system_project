@@ -3,6 +3,7 @@ import Navbar from "../components/Navbar";
 import { motion } from "framer-motion";
 import { UserCircle2, Mail } from "lucide-react";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 export default function MyProfile() {
   const [user, setUser] = useState(null);
@@ -11,15 +12,21 @@ export default function MyProfile() {
     const fetchProfile = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get("http://localhost:5000/api/auth/my-profile", {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const res = await axios.get(
+          "http://localhost:5000/api/auth/my-profile",
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         setUser(res.data);
       } catch (error) {
-        console.error("Error fetching user profile:", error);
+        toast.error(
+          "Error fetching user profile: " +
+            (error.response?.data?.message || "Unknown error")
+        );
       }
     };
 
@@ -28,8 +35,9 @@ export default function MyProfile() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] text-white text-lg font-medium">
-        Loading your profile...
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] text-white text-lg font-medium">
+        <div className="mb-4">Loading your profile...</div>
+        <div className="w-10 h-10 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
