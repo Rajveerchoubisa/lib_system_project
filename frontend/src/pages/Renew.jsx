@@ -93,6 +93,7 @@
 // RenewForm.jsx
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Navbar from "../components/Navbar"
 
 export default function RenewForm() {
   const [booking, setBooking] = useState(null);
@@ -235,6 +236,8 @@ export default function RenewForm() {
   };
 
   return (
+    <>
+    <Navbar />
   <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] px-4">
     <div className="bg-white rounded-2xl shadow-lg p-6 max-w-sm w-full">
       <h3 className="text-xl font-bold text-blue-900 mb-4 flex items-center gap-2">
@@ -302,5 +305,6 @@ export default function RenewForm() {
       )}
     </div>
   </div>
+  </>
   );
 }

@@ -116,7 +116,7 @@ export default function MyBookings() {
         });
         setBookings(data.bookings || []);
       } catch (error) {
-        toast.error((error.response?.data?.message || "Unknown error"));
+        //toast.error((error.response?.data?.message || "Unknown error"));
         setBookings([]);
       } finally {
         setLoading(false);
@@ -139,7 +139,7 @@ export default function MyBookings() {
               <div className="w-10 h-10 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
             </div>
           ) : bookings.length === 0 ? (
-            <p className="text-center text-white/70">You have no bookings yet.</p>
+            <p className="text-center justify-center items-center text-lg text-gray-200">You have no bookings yet.</p>
           ) : (
             bookings.map((booking) => (
               <motion.div
