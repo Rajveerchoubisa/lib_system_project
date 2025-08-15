@@ -110,6 +110,7 @@ const ForgotPassword = () => {
   const [contact, setContact] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const API = import.meta.env.VITE_API_URL;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -126,7 +127,7 @@ const ForgotPassword = () => {
         method === "email" ? { email: contact } : { phone: contact };
 
       const res = await axios.post(
-        "http://localhost:5000/api/auth/forgot-password",
+        `${API}/api/auth/forgot-password`,
         payload
       );
 

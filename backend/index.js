@@ -13,7 +13,7 @@ dotenv.config();
 const app = express();
 app.use(
   cors({
-    origin: "http://localhost:5173", // or whatever your frontend runs on
+    origin: process.env.CLIENT_URL, // or whatever your frontend runs on
     credentials: true,
   })
 );
@@ -34,7 +34,7 @@ app.use(
 
 
 
-app.use("/uploads", express.static("uploads"));
+
 connectDB();
 
 

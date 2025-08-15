@@ -104,12 +104,13 @@ import { toast } from "react-toastify";
 export default function MyBookings() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const API = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchBookings = async () => {
       try {
         const token = localStorage.getItem("token");
-        const { data } = await axios.get("http://localhost:5000/api/bookings/my", {
+        const { data } = await axios.get(`${API}/api/bookings/my`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

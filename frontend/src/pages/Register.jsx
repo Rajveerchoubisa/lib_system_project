@@ -14,11 +14,12 @@ export default function Register() {
   const [otpSent, setOtpSent] = useState(false);
   const [otp, setOtp] = useState("");
   const navigate = useNavigate();
+  const API = import.meta.env.VITE_API_URL;
 
   const handleSendOtp = async () => {
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/auth/send-otp",
+        `${API}/api/auth/send-otp`,
         {
           [method]: contact,
         },
@@ -36,7 +37,7 @@ export default function Register() {
     try {
       // 1. Verify OTP
       await axios.post(
-        "http://localhost:5000/api/auth/verify-otp",
+        `${API}/api/auth/verify-otp`,
         {
           // [method]: contact,
           otp,
@@ -46,7 +47,7 @@ export default function Register() {
 
       // 2. Register user
       const res = await axios.post(
-        "http://localhost:5000/api/auth/register",
+        `${API}/api/auth/register`,
         {
           name,
           password,

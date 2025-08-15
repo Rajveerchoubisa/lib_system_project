@@ -100,6 +100,7 @@ export default function RenewForm() {
   const [months, setMonths] = useState(1);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const API = import.meta.env.VITE_API_URL;
 
   const userInfo = (() => {
     try {
@@ -124,7 +125,7 @@ export default function RenewForm() {
         }
 
         const { data } = await axios.get(
-          "http://localhost:5000/api/bookings/my",
+          `${API}/api/bookings/my`,
           { headers }
         );
 

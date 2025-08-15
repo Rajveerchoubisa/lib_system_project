@@ -7,13 +7,14 @@ import { toast } from "react-toastify";
 
 export default function MyProfile() {
   const [user, setUser] = useState(null);
+  const API = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const token = localStorage.getItem("token");
         const res = await axios.get(
-          "http://localhost:5000/api/auth/my-profile",
+          `${API}/api/auth/my-profile`,
           {
             headers: {
               "Content-Type": "application/json",

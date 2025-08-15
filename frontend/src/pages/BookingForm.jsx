@@ -11,6 +11,7 @@ export default function BookingForm() {
   const [price, setPrice] = useState(500);
   const [bookingId, setBookingId] = useState(null);
   const navigate = useNavigate();
+  const API = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     setPrice(months * 750); 
@@ -32,10 +33,11 @@ export default function BookingForm() {
       toast.error("Please select a joining date.");
       return;
     }
+    
 
     try {
       const { data } = await axios.post(
-        "http://localhost:5000/api/bookings/book",
+        `${API}/api/bookings/book`,
         { joiningDate, months },
         {
           headers: {
@@ -67,12 +69,14 @@ export default function BookingForm() {
     }
 
     try {
-      const { data } = await axios.post("http://localhost:5000/api/payment/create-order", {
+      const { data } = await axios.post(`${API}/api/payment/create-order`, {
         amount: price,
       });
 
+      const key = import.meta.env.VITE_RAZORPAY_KEY_ID;
+
       const options = {
-        key: "rzp_test_K5ZFACcn9npVuG",
+        key,
         amount: data.amount,
         currency: data.currency,
         name: "Library Seat Booking",
@@ -80,7 +84,7 @@ export default function BookingForm() {
         order_id: data.orderId,
         handler: async function (response) {
           try {
-            await axios.post("http://localhost:5000/api/payment/verify-payment", {
+            await axios.post(`${API}/api/payment/verify-payment`, {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,

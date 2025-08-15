@@ -12,11 +12,12 @@ export default function ResetPasswordPhone() {
   const [otp, setOtp] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const navigate = useNavigate();
+  const API = import.meta.env.VITE_API_URL;
 
   const handleReset = async () => {
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/auth/reset-password-phone",
+        `${API}/api/auth/reset-password-phone`,
         {
           phone,
           otp,
