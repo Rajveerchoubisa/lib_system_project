@@ -42,13 +42,13 @@ export default function Footer() {
 
         <div>
           <h4 className="text-lg font-semibold mb-4">Resources</h4>
-          <FooterLink to="#">Privacy Policy</FooterLink>
-          <FooterLink to="#">Terms of Service</FooterLink>
+          <FooterLink to="/privacy">Privacy Policy</FooterLink>
+          <FooterLink to="/terms">Terms of Service</FooterLink>
         </div>
 
         <div>
           <h4 className="text-lg font-semibold mb-4">Contact</h4>
-          <p className="text-white/70 text-sm">supportsmartlibrary@gmail.com</p>
+          <p className="text-white/70 text-sm">support@librarysystem.com</p>
           <p className="text-white/70 text-sm">+91-999-999-9999</p>
         </div>
       </div>

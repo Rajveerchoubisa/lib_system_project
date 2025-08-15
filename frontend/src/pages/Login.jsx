@@ -1,23 +1,24 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
-import { FaEnvelope, FaLock } from "react-icons/fa";
+import { FaUser, FaLock } from "react-icons/fa";
 import axios from "axios";
 import LoginNavbar from "../components/LoginNavbar.jsx";
 import { toast } from "react-toastify";
 
 export default function Login() {
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState(""); // email or phone
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
-    e.preventDefault(); // prevent page refresh
+    e.preventDefault();
     try {
       const res = await axios.post("http://localhost:5000/api/auth/login", {
-        email,
+        identifier,
         password,
       });
+
       toast.success("You have successfully logged in!");
       setTimeout(() => {
         navigate("/dashboard");
@@ -25,9 +26,7 @@ export default function Login() {
 
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("userInfo", JSON.stringify(res.data));
-      axios.defaults.headers.common[
-        "Authorization"
-      ] = `Bearer ${res.data.token}`;
+      axios.defaults.headers.common["Authorization"] = `Bearer ${res.data.token}`;
     } catch (error) {
       toast.error(error.response?.data?.message || "Login failed");
     }
@@ -48,14 +47,14 @@ export default function Login() {
           </h2>
 
           <form className="space-y-6" onSubmit={handleLogin}>
-            {/* Email Input */}
+            {/* Email or Phone Input */}
             <div className="relative">
-              <FaEnvelope className="absolute top-3.5 left-3 text-white/50" />
+              <FaUser className="absolute top-3.5 left-3 text-white/50" />
               <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
+                type="text"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+                placeholder="Email or Phone Number"
                 className="w-full pl-10 pr-4 py-2 bg-white/10 text-white border border-white/20 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400 placeholder-white/50"
                 required
               />
@@ -86,6 +85,11 @@ export default function Login() {
           </form>
 
           {/* Auth Switch */}
+          <p>
+            <Link to="/forgot-password" className="text-indigo-400 hover:underline">
+              Forgot password?
+            </Link>
+          </p>
           <p className="text-center text-white/60 text-sm mt-6">
             Not registered yet?{" "}
             <Link to="/register" className="text-indigo-400 hover:underline">

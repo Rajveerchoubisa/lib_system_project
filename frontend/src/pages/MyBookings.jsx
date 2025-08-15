@@ -116,7 +116,7 @@ export default function MyBookings() {
         });
         setBookings(data.bookings || []);
       } catch (error) {
-        toast.error("Failed to fetch bookings: " + (error.response?.data?.message || "Unknown error"));
+        toast.error((error.response?.data?.message || "Unknown error"));
         setBookings([]);
       } finally {
         setLoading(false);

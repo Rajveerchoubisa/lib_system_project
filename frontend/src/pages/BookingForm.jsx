@@ -13,7 +13,7 @@ export default function BookingForm() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    setPrice(months * 750); // ₹750 per month
+    setPrice(months * 750); 
   }, [months]);
 
   const loadRazorpayScript = () =>
@@ -48,14 +48,14 @@ export default function BookingForm() {
       if (data.success) {
         setBookingId(data.booking._id);
         setPrice(data.booking.price);
-        toast.success(`✅ Booking created. Proceed to pay ₹${data.booking.price}`);
+        toast.success(`Booking created. Proceed to pay ₹${data.booking.price}`);
       } else {
-        toast.error(data.message || "❌ Booking failed.");
+        toast.error(data.message || "Booking failed.");
       }
     } catch (err) {
       console.error("Booking Error:", err);
       const msg = err.response?.data?.message || "Booking failed";
-      toast.error(`❌ ${msg}`);
+      toast.error(msg);
     }
   };
 
@@ -87,11 +87,11 @@ export default function BookingForm() {
               bookingId,
             });
 
-            toast.success("✅ Payment successful!");
+            toast.success("Payment successful!");
             setTimeout(() => navigate("/success"), 1500);
           } catch (err) {
             console.error("Payment verification failed:", err);
-            toast.error("❌ Payment verification failed");
+            toast.error("Payment verification failed");
           }
         },
         prefill: {
@@ -107,7 +107,7 @@ export default function BookingForm() {
       rzp.open();
     } catch (err) {
       console.error("Payment Error:", err);
-      toast.error("❌ Payment initiation failed");
+      toast.error("Payment initiation failed");
     }
   };
 

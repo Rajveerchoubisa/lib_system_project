@@ -55,15 +55,24 @@ export default function MyProfile() {
           <div className="flex flex-col items-center">
             <UserCircle2 className="w-20 h-20 text-indigo-400 mb-4" />
             <h2 className="text-2xl font-bold mb-1 text-indigo-300">
-              {user.fullName}
+              {user.name}
             </h2>
             <p className="text-white/70 text-sm mb-8">Library Member</p>
 
             <div className="w-full space-y-5 text-white/90 text-lg">
-              <div className="flex items-center gap-4 bg-white/5 px-4 py-3 rounded-lg hover:bg-white/10 transition">
-                <Mail className="w-5 h-5 text-indigo-300" />
-                <p>{user.email}</p>
-              </div>
+              {user.email ? (
+                <div className="flex items-center gap-4 bg-white/5 px-4 py-3 rounded-lg hover:bg-white/10 transition">
+                  <Mail className="w-5 h-5 text-indigo-300" />
+                  <p>{user.email}</p>
+                </div>
+              ) : user.phone ? (
+                <div className="flex items-center gap-4 bg-white/5 px-4 py-3 rounded-lg hover:bg-white/10 transition">
+                  <span className="text-indigo-300 font-medium">📱</span>
+                  <p>{user.phone}</p>
+                </div>
+              ) : (
+                <p className="text-red-400">No contact information available</p>
+              )}
             </div>
           </div>
         </motion.div>

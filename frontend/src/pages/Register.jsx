@@ -1,37 +1,66 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
-import { FaUser, FaEnvelope, FaLock } from "react-icons/fa";
+import { FaUser, FaEnvelope, FaLock, FaPhone } from "react-icons/fa";
 import axios from "axios";
 import LoginNavbar from "../components/LoginNavbar.jsx";
 import { toast } from "react-toastify";
 
 export default function Register() {
+  const [method, setMethod] = useState("email"); // 'email' or 'phone'
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [contact, setContact] = useState(""); // phone or email
   const [password, setPassword] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState("");
   const navigate = useNavigate();
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
-
+  const handleSendOtp = async () => {
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/register", {
-        name,
-        email,
-        password,
-      });
+      const res = await axios.post(
+        "http://localhost:5000/api/auth/send-otp",
+        {
+          [method]: contact,
+        },
+        { withCredentials: true }
+      );
+      toast.success("OTP sent successfully!");
+      setOtpSent(true);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to send OTP");
+    }
+  };
 
+  const handleVerifyOtpAndRegister = async (e) => {
+    e.preventDefault();
+    try {
+      // 1. Verify OTP
+      await axios.post(
+        "http://localhost:5000/api/auth/verify-otp",
+        {
+          // [method]: contact,
+          otp,
+        },
+        { withCredentials: true }
+      );
+
+      // 2. Register user
+      const res = await axios.post(
+        "http://localhost:5000/api/auth/register",
+        {
+          name,
+          password,
+          // [method]: contact,
+            ...(method === "email" ? { email: contact } : { phone: contact }),
+        },
+        { withCredentials: true }
+      );
 
       localStorage.setItem("userInfo", JSON.stringify(res.data));
       toast.success("Registration successful! You can now log in.");
-      setTimeout(() => {
-        navigate("/login");
-      }, 1000);
-      
-      
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Registration failed");
+      navigate("/login");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Registration failed");
     }
   };
 
@@ -49,7 +78,7 @@ export default function Register() {
             Create Your Account
           </h2>
 
-          <form onSubmit={handleRegister} className="space-y-5">
+          <form onSubmit={handleVerifyOtpAndRegister} className="space-y-5">
             {/* Full Name */}
             <div className="relative">
               <FaUser className="absolute top-3.5 left-3 text-white/50" />
@@ -63,14 +92,52 @@ export default function Register() {
               />
             </div>
 
-            {/* Email */}
+            {/* Switch Method */}
+            <div className="flex justify-center gap-4 mb-2">
+              <button
+                type="button"
+                className={`px-3 py-1 rounded-md ${
+                  method === "email"
+                    ? "bg-indigo-500 text-white"
+                    : "bg-white/20 text-white/70"
+                }`}
+                onClick={() => {
+                  setMethod("email");
+                  setContact("");
+                }}
+              >
+                Email
+              </button>
+              <button
+                type="button"
+                className={`px-3 py-1 rounded-md ${
+                  method === "phone"
+                    ? "bg-indigo-500 text-white"
+                    : "bg-white/20 text-white/70"
+                }`}
+                onClick={() => {
+                  setMethod("phone");
+                  setContact("");
+                }}
+              >
+                Phone
+              </button>
+            </div>
+
+            {/* Email or Phone */}
             <div className="relative">
-              <FaEnvelope className="absolute top-3.5 left-3 text-white/50" />
+              {method === "email" ? (
+                <FaEnvelope className="absolute top-3.5 left-3 text-white/50" />
+              ) : (
+                <FaPhone className="absolute top-3.5 left-3 text-white/50" />
+              )}
               <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
+                type={method === "email" ? "email" : "tel"}
+                value={contact}
+                onChange={(e) => setContact(e.target.value)}
+                placeholder={
+                  method === "email" ? "you@example.com" : "+91 1234567890"
+                }
                 required
                 className="w-full pl-10 pr-4 py-2 bg-white/10 text-white border border-white/20 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400 placeholder-white/50"
               />
@@ -89,18 +156,31 @@ export default function Register() {
               />
             </div>
 
-            {/* Register Button */}
+            {/* OTP Input */}
+            {otpSent && (
+              <input
+                type="text"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                placeholder="Enter OTP"
+                required
+                className="w-full px-4 py-2 bg-white/10 text-white border border-white/20 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400 placeholder-white/50"
+              />
+            )}
+
+            {/* Action Button */}
             <motion.button
+              type="button"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.97 }}
-              type="submit"
               className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 rounded-md transition shadow-md"
+              onClick={otpSent ? handleVerifyOtpAndRegister : handleSendOtp}
             >
-              Register
+              {otpSent ? "Verify OTP & Register" : "Send OTP"}
             </motion.button>
           </form>
 
-          {/* Auth Switch Link */}
+          {/* Switch to Login */}
           <p className="text-center text-white/60 text-sm mt-6">
             Already have an account?{" "}
             <Link to="/login" className="text-indigo-400 hover:underline">

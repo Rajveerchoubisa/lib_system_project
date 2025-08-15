@@ -29,6 +29,7 @@ export default function DashboardNavbar() {
           <Link to="/dashboard" className="hover:text-indigo-400 transition">Home</Link>
           <Link to="/bookings" className="hover:text-indigo-400 transition">Book Seat</Link>
           <Link to="/my-bookings" className="hover:text-indigo-400 transition">My Bookings</Link>
+          <Link to="/renew" className="hover:text-indigo-400 transition">Renew Booking</Link>
         </nav>
 
         {/* User Section */}
