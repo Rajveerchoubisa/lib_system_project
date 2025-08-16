@@ -92,8 +92,6 @@
 //   );
 // }
 
-
-
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { CalendarCheck, Clock, MapPin } from "lucide-react";
@@ -131,16 +129,22 @@ export default function MyBookings() {
     <>
       <Navbar />
       <div className="min-h-screen bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] text-white px-6 py-20">
-        <h1 className="text-4xl mt-5 font-bold text-center mb-10">My Bookings</h1>
+        <h1 className="text-4xl mt-5 font-bold text-center mb-10">
+          My Bookings
+        </h1>
 
         <div className="max-w-4xl mx-auto space-y-6">
           {loading ? (
             <div className="flex flex-col items-center justify-center h-40">
-              <p className="text-center text-white/70">Loading your bookings...</p>
+              <p className="text-center text-white/70">
+                Loading your bookings...
+              </p>
               <div className="w-10 h-10 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
             </div>
           ) : bookings.length === 0 ? (
-            <p className="text-center justify-center items-center text-lg text-gray-200">You have no bookings yet.</p>
+            <p className="text-center justify-center items-center text-lg text-gray-200">
+              You have no bookings yet.
+            </p>
           ) : (
             bookings.map((booking) => (
               <motion.div
@@ -152,12 +156,13 @@ export default function MyBookings() {
                   booking.status === "past" ? "opacity-60" : ""
                 }`}
               >
-                <div className="flex justify-between items-center">
+                {/* Top Row */}
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
                   <div className="text-lg font-semibold">
-                    Seat {booking.seatNumber || "N/A"}
+                    Your Booking
                   </div>
                   <span
-                    className={`text-xs font-medium px-2 py-1 rounded-full ${
+                    className={`self-start sm:self-auto text-xs font-medium px-2 py-1 rounded-full ${
                       booking.status === "active"
                         ? "bg-green-500/20 text-green-400"
                         : "bg-gray-500/20 text-gray-400"
@@ -166,9 +171,11 @@ export default function MyBookings() {
                     {booking.status === "active" ? "Upcoming" : "Past"}
                   </span>
                 </div>
-                <div className="flex items-center gap-4 text-sm text-white/80">
+
+                {/* Details Row */}
+                <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 text-sm text-white/80 mt-2">
                   <div className="flex items-center gap-1">
-                    <CalendarCheck className="w-4 h-4" />{" "}
+                    <CalendarCheck className="w-4 h-4" />
                     {new Date(booking.joiningDate).toLocaleDateString()}
                   </div>
                   <div className="flex items-center gap-1">
@@ -178,7 +185,7 @@ export default function MyBookings() {
                     <MapPin className="w-4 h-4" /> {booking.room || "Library"}
                   </div>
                   <div className="flex items-center gap-1">
-                    <CalendarCheck className="w-4 h-4" />{" "}
+                    <CalendarCheck className="w-4 h-4" />
                     {new Date(booking.expiryDate).toLocaleDateString()}
                   </div>
                 </div>

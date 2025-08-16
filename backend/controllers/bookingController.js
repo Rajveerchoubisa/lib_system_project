@@ -5,7 +5,6 @@
 // dotenv.config();
 // import Razorpay from "razorpay";
 
-
 // const createBooking = async (req, res) => {
 //   try {
 //     const { joiningDate } = req.body;
@@ -56,12 +55,6 @@
 //   }
 // };
 
-
-
-
-
-
-
 // export const updatePaymentStatus = async (req, res) => {
 //   try {
 //     const booking = await Booking.findById(req.params.id);
@@ -77,7 +70,6 @@
 //     res.status(500).json({ message: "Internal Server Error" });
 //   }
 // };
-
 
 // export const renewBooking = async (req, res) => {
 //   try {
@@ -98,7 +90,6 @@
 //     res.status(500).json({ error: error.message });
 //   }
 // };
-
 
 // export const paymentSuccess = async (req, res) => {
 //   try {
@@ -131,13 +122,10 @@
 //   }
 // };
 
-
-
 // const razorpay = new Razorpay({
 //   key_id: process.env.RAZORPAY_KEY_ID,
 //   key_secret: process.env.RAZORPAY_KEY_SECRET,
 // });
-
 
 // // export const createRazorpayOrder = async (req, res) => {
 // //   try {
@@ -158,14 +146,7 @@
 // //   }
 // // };
 
-
-
-
 // export default createBooking;
-
-
-
-
 
 // controllers/bookingController.js
 import Booking from "../models/booking.js";
@@ -175,8 +156,7 @@ import dotenv from "dotenv";
 import crypto from "crypto";
 import Razorpay from "razorpay";
 
-
-const PRICE_PER_MONTH = 750; 
+const PRICE_PER_MONTH = 750;
 dotenv.config();
 // import Razorpay if you need it (left out of flow for clarity)
 
@@ -185,21 +165,40 @@ dotenv.config();
 // Create booking (existing logic, minor cleanup)
 const createBooking = async (req, res) => {
   try {
+    ////changesss-----------------------------------------------
+    const totalSeats = 60;
+    const bookedSeats = await Booking.countDocuments({ status: "active" });
+    const availableSeats = totalSeats - bookedSeats;
+
+    if (availableSeats <= 0) {
+      return res
+        .status(400)
+        .json({ success: false, message: "No seats available" });
+    }
+
+     //p-----------------------------------------
+
     const { joiningDate } = req.body;
     const months = parseInt(req.body.months);
     const userId = req.user._id;
 
     if (!joiningDate || !months || isNaN(months)) {
-      return res.status(400).json({ success: false, message: "Please enter the required fields" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Please enter the required fields" });
     }
 
     const existingBooking = await Booking.findOne({ userId });
     if (existingBooking) {
-      return res.status(400).json({ success: false, message: "User already has a booking" });
+      return res
+        .status(400)
+        .json({ success: false, message: "User already has a booking" });
     }
 
     const price = months * PRICE_PER_MONTH;
-    const expiryDate = new Date(new Date(joiningDate).setMonth(new Date(joiningDate).getMonth() + months));
+    const expiryDate = new Date(
+      new Date(joiningDate).setMonth(new Date(joiningDate).getMonth() + months)
+    );
 
     const booking = new Booking({
       joiningDate,
@@ -226,7 +225,9 @@ export const getMyBooking = async (req, res) => {
     const userId = req.user._id;
     const bookings = await Booking.find({ userId });
     if (!bookings || bookings.length === 0) {
-      return res.status(404).json({ success: false, message: "No bookings found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "No bookings found" });
     }
     // If you guarantee one per user, return that direct object:
     return res.json({ success: true, bookings });
@@ -255,15 +256,25 @@ export const renewBooking = async (req, res) => {
     const months = parseInt(req.body.months) || 1;
 
     if (!mongoose.Types.ObjectId.isValid(bookingId)) {
-      return res.status(400).json({ success: false, message: "Invalid booking id" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid booking id" });
     }
 
     const booking = await Booking.findById(bookingId);
-    if (!booking) return res.status(404).json({ success: false, message: "Booking not found" });
+    if (!booking)
+      return res
+        .status(404)
+        .json({ success: false, message: "Booking not found" });
 
     // Security: ensure requester owns the booking
     if (req.user && booking.userId.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ success: false, message: "Not authorized to renew this booking" });
+      return res
+        .status(403)
+        .json({
+          success: false,
+          message: "Not authorized to renew this booking",
+        });
     }
 
     // Extend expiry date
@@ -293,22 +304,33 @@ export const paymentSuccess = async (req, res) => {
   try {
     const { bookingId } = req.params;
     if (!mongoose.Types.ObjectId.isValid(bookingId)) {
-      return res.status(400).json({ success: false, message: "Invalid booking id" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid booking id" });
     }
 
     const booking = await Booking.findById(bookingId);
-    if (!booking) return res.status(404).json({ success: false, message: "Booking not found" });
+    if (!booking)
+      return res
+        .status(404)
+        .json({ success: false, message: "Booking not found" });
 
     // Security: ensure requester owns the booking
     if (req.user && booking.userId.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ success: false, message: "Not authorized" });
+      return res
+        .status(403)
+        .json({ success: false, message: "Not authorized" });
     }
 
     booking.paymentStatus = "completed";
     booking.status = "active";
     await booking.save();
 
-    return res.json({ success: true, message: "Payment recorded successfully", booking });
+    return res.json({
+      success: true,
+      message: "Payment recorded successfully",
+      booking,
+    });
   } catch (error) {
     console.error("paymentSuccess error:", error);
     return res.status(500).json({ success: false, message: error.message });
@@ -332,13 +354,6 @@ export const updatePaymentStatus = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
-
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
@@ -356,11 +371,19 @@ export const createRenewOrder = async (req, res) => {
     const months = parseInt(req.body.months) || 1;
 
     const booking = await Booking.findById(bookingId);
-    if (!booking) return res.status(404).json({ success: false, message: "Booking not found" });
+    if (!booking)
+      return res
+        .status(404)
+        .json({ success: false, message: "Booking not found" });
 
     // Security: ensure user owns this booking
     if (booking.userId.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ success: false, message: "Not authorized to renew this booking" });
+      return res
+        .status(403)
+        .json({
+          success: false,
+          message: "Not authorized to renew this booking",
+        });
     }
 
     const amountPaise = months * PRICE_PER_MONTH * 100; // Razorpay takes paise
@@ -387,7 +410,9 @@ export const createRenewOrder = async (req, res) => {
     });
   } catch (err) {
     console.error("createRenewOrder error:", err);
-    return res.status(500).json({ success: false, message: "Failed to create renew order" });
+    return res
+      .status(500)
+      .json({ success: false, message: "Failed to create renew order" });
   }
 };
 
@@ -399,13 +424,23 @@ export const createRenewOrder = async (req, res) => {
 export const verifyRenewPayment = async (req, res) => {
   try {
     const { bookingId } = req.params;
-    const { months, razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+    const {
+      months,
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+    } = req.body;
 
     const booking = await Booking.findById(bookingId);
-    if (!booking) return res.status(404).json({ success: false, message: "Booking not found" });
+    if (!booking)
+      return res
+        .status(404)
+        .json({ success: false, message: "Booking not found" });
 
     if (booking.userId.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ success: false, message: "Not authorized" });
+      return res
+        .status(403)
+        .json({ success: false, message: "Not authorized" });
     }
 
     // Verify signature
@@ -416,7 +451,9 @@ export const verifyRenewPayment = async (req, res) => {
       .digest("hex");
 
     if (expectedSignature !== razorpay_signature) {
-      return res.status(400).json({ success: false, message: "Payment verification failed" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Payment verification failed" });
     }
 
     // Signature OK -> extend booking
@@ -450,6 +487,5 @@ export const verifyRenewPayment = async (req, res) => {
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
-
 
 export default createBooking;

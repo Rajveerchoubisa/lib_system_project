@@ -64,6 +64,7 @@
 
 import express from "express";
 import protect from "../middlewares/auth.js";
+import Booking from "../models/booking.js";
 import createBooking, {
   getMyBooking,
   getBookingsByUser,
@@ -87,6 +88,21 @@ router.get("/user/:userId", protect, getBookingsByUser);
 // NEW: Razorpay renewal flow
 router.post("/renew/:bookingId/order", protect, createRenewOrder);
 router.post("/renew/:bookingId/verify", protect, verifyRenewPayment);
+
+router.get("/seats-left", async (req, res) => {
+  try {
+    const totalSeats = 60;
+
+    // count only active bookings
+    const bookedSeats = await Booking.countDocuments({ status: "active" });
+
+    const availableSeats = totalSeats - bookedSeats;
+    res.json({ success: true, availableSeats });
+  } catch (err) {
+    console.error("Seats left error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
 
 export default router;
 

@@ -1,99 +1,6 @@
-// import { useState, useEffect } from "react";
-// import axios from "axios";
-
-// export default function RenewForm() {
-//   const [bookingId, setBookingId] = useState(null);
-//   const [months, setMonths] = useState(1);
-//   const [loading, setLoading] = useState(false);
-//   const [message, setMessage] = useState("");
-
-//   // Fetch user's latest booking
-//   useEffect(() => {
-//     const fetchBooking = async () => {
-//       try {
-//         const userInfo = JSON.parse(localStorage.getItem("userInfo"));
-//         const userId = userInfo?._id;
-//         if (!userId) return setMessage("User not logged in!");
-
-//         const { data } = await axios.get(
-//           `http://localhost:5000/api/bookings/user/${userId}`,
-//           {
-//             headers: {
-//               Authorization: `Bearer ${userInfo?.token}`,
-//             },
-//           }
-//         );
-//         setBookingId(data.bookings._id);
-//         console.log(data.bookings._id); // pick latest booking
-//       } catch (error) {
-//         console.error(error);
-//         setMessage("Failed to fetch bookings.");
-//       }
-//     };
-
-//     fetchBooking();
-//   }, []);
-
-//   const handleRenew = async () => {
-//     if (!bookingId) return setMessage("Booking ID not found!");
-
-//     try {
-//       setLoading(true);
-//       setMessage("");
-
-//       // Renew booking
-//       const { data } = await axios.post(
-//         `http://localhost:5000/api/bookings/renew/${bookingId}`,
-//         { months: Number(months) }
-//       );
-
-//       // Mark payment as success
-//       await axios.post(
-//         `http://localhost:5000/api/bookings/payment-success/${bookingId}`
-//       );
-
-//       setMessage(
-//         `Booking renewed! New expiry: ${new Date(
-//           data.booking.expiryDate
-//         ).toLocaleDateString()}`
-//       );
-//     } catch (error) {
-//       console.error(error);
-//       setMessage(error.response?.data?.message || "Something went wrong!");
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   return (
-//     <div className="p-4 bg-yellow-100 rounded-lg max-w-sm">
-//       <h3 className="font-semibold mb-2">Renew Booking</h3>
-
-//       <input
-//         type="number"
-//         min={1}
-//         value={months}
-//         onChange={(e) => setMonths(Number(e.target.value))}
-//         className="border p-2 w-full mb-2"
-//       />
-
-//       <button
-//         onClick={handleRenew}
-//         disabled={loading || !bookingId}
-//         className="bg-blue-500 text-white px-4 py-1 rounded disabled:opacity-50"
-//       >
-//         {loading ? "Processing..." : "Renew"}
-//       </button>
-
-//       {message && <p className="mt-2 text-green-700">{message}</p>}
-//     </div>
-//   );
-// }
-
-// RenewForm.jsx
 import { useEffect, useState } from "react";
 import axios from "axios";
-import Navbar from "../components/Navbar"
+import Navbar from "../components/Navbar";
 
 export default function RenewForm() {
   const [booking, setBooking] = useState(null);
@@ -114,7 +21,7 @@ export default function RenewForm() {
     ? { Authorization: `Bearer ${userInfo.token}` }
     : {};
 
-  // Fetch user's booking (assumes 1 booking per user)
+  // Fetch user's booking
   useEffect(() => {
     const load = async () => {
       try {
@@ -124,19 +31,15 @@ export default function RenewForm() {
           return;
         }
 
-        const { data } = await axios.get(
-          `${API}/api/bookings/my`,
-          { headers }
-        );
+        const { data } = await axios.get(`${API}/api/bookings/my`, { headers });
 
-        const bookings = data.bookings || data; // support either shape
+        const bookings = data.bookings || data;
         if (Array.isArray(bookings) && bookings.length > 0) {
           setBooking(bookings[0]);
         } else if (bookings && bookings._id) {
           setBooking(bookings);
         } else {
           setMessage("No booking found for this account.");
-        
         }
       } catch (err) {
         console.error(err);
@@ -156,9 +59,9 @@ export default function RenewForm() {
       setLoading(true);
       setMessage("");
 
-      // 1) Ask backend to create Razorpay order for the renewal
+      // 1) Ask backend to create Razorpay order
       const orderRes = await axios.post(
-        `http://localhost:5000/api/bookings/renew/${booking._id}/order`,
+        `${API}/api/bookings/renew/${booking._id}/order`,
         { months: Number(months) },
         { headers }
       );
@@ -188,10 +91,9 @@ export default function RenewForm() {
           contact: userInfo?.phone || "",
         },
         handler: async (response) => {
-          // 3) Verify payment + extend booking on server
           try {
             const verifyRes = await axios.post(
-              `http://localhost:5000/api/bookings/renew/${booking._id}/verify`,
+              `${API}/api/bookings/renew/${booking._id}/verify`,
               {
                 months: Number(months),
                 razorpay_order_id: response.razorpay_order_id,
@@ -205,7 +107,7 @@ export default function RenewForm() {
               const updated = verifyRes.data.booking;
               setBooking(updated);
               setMessage(
-                `Booking renewed! New expiry: ${new Date(
+                `✅ Booking renewed! New expiry: ${new Date(
                   updated.expiryDate
                 ).toLocaleDateString()}`
               );
@@ -238,74 +140,85 @@ export default function RenewForm() {
 
   return (
     <>
-    <Navbar />
-  <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] px-4">
-    <div className="bg-white rounded-2xl shadow-lg p-6 max-w-sm w-full">
-      <h3 className="text-xl font-bold text-blue-900 mb-4 flex items-center gap-2">
-        🔄 Renew Booking
-      </h3>
-
-      {booking ? (
-        <>
-          <div className="bg-blue-50 p-4 rounded-lg shadow-sm mb-4">
-            <p className="text-sm text-blue-600">Current expiry date:</p>
-            <p className="text-lg font-semibold text-blue-900">
-              {new Date(booking.expiryDate).toLocaleDateString()}
-            </p>
-          </div>
-
-          <label className="block mb-4">
-            <span className="text-sm font-medium text-blue-800">Months to Add</span>
-            <input
-              type="number"
-              min={1}
-              value={months}
-              onChange={(e) => setMonths(Number(e.target.value))}
-              className="mt-1 block w-full rounded-lg border border-blue-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50 p-2"
-            />
-          </label>
-
-          <button
-            onClick={handleRenew}
-            disabled={loading}
-            className={`w-full py-2 rounded-lg text-white font-semibold transition ${
-              loading
-                ? "bg-blue-300 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700 shadow"
-            }`}
-          >
-            {loading ? "Processing..." : "💳 Pay & Renew"}
-          </button>
-        </>
-      ) : (
-        <p className="text-blue-200 text-sm">{message || "Loading booking..."}</p>
-      )}
-
-      {message && (
-        <div className="mt-4 text-center">
-          <p
-            className={`text-sm font-medium mb-3 ${
-              message.toLowerCase().includes("error")
-                ? "text-red-600"
-                : "text-green-600"
-            }`}
-          >
-            {message}
+      <Navbar />
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] px-4 py-8">
+        
+        {/* Info box */}
+        <div className="border bg-white/10 backdrop-blur-md border-white/10 rounded-xl p-4 sm:p-6 max-w-lg w-full text-center shadow mb-6">
+          <p className="text-white/80 text-sm sm:text-base font-medium">
+            🔔 Renew your library seating access here. <br />
+            Pay securely and extend before expiry.
           </p>
+        </div>
 
-          {/* Show "Go to My Booking" only if renewal success */}
-          {message.toLowerCase().includes("booking renewed") && (
-            <a
-              href="/my-booking"
-              className="inline-block bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow transition"
-            >
-              📚 Go to My Booking
-            </a>
+        {/* Form box */}
+        <div className="rounded-2xl bg-white/10 backdrop-blur-md border border-white/10 shadow-lg p-6 sm:p-8 max-w-sm w-full">
+          <h3 className="text-lg sm:text-xl font-bold text-indigo-400 mb-5 flex items-center gap-2 justify-center">
+            🔄 Renew Booking
+          </h3>
+
+          {booking ? (
+            <>
+              <div className="p-4 bg-white/10 rounded-lg shadow-sm mb-5 text-center">
+                <p className="text-xs sm:text-sm text-white/70">Current Expiry</p>
+                <p className="text-lg sm:text-xl font-semibold text-white mt-1">
+                  {new Date(booking.expiryDate).toLocaleDateString()}
+                </p>
+              </div>
+
+              <label className="block mb-5">
+                <span className="text-xs sm:text-sm font-medium text-white">
+                  Months to Add
+                </span>
+                <input
+                  type="number"
+                  min={1}
+                  value={months}
+                  onChange={(e) => setMonths(Number(e.target.value))}
+                  className="mt-2 block w-full text-white rounded-lg border border-blue-400 bg-transparent shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-400 focus:ring-opacity-50 p-2 sm:p-3 text-sm sm:text-base"
+                />
+              </label>
+
+              <button
+                onClick={handleRenew}
+                disabled={loading}
+                className={`w-full py-2 sm:py-3 rounded-lg text-white font-semibold transition ${
+                  loading
+                    ? "bg-blue-300 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700 shadow"
+                }`}
+              >
+                {loading ? "Processing..." : "💳 Pay & Renew"}
+              </button>
+            </>
+          ) : (
+            <p className="text-blue-400 text-sm">{message || "Loading booking..."}</p>
+          )}
+
+          {message && (
+            <div className="mt-5 text-center">
+              <p
+                className={`text-sm sm:text-base font-medium mb-3 ${
+                  message.includes("✅")
+                    ? "text-green-400"
+                    : "text-red-400"
+                }`}
+              >
+                {message}
+              </p>
+
+              {message.includes("Booking renewed") && (
+                <a
+                  href="/my-booking"
+                  className="inline-block bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow transition"
+                >
+                  📚 Go to My Booking
+                </a>
+              )}
+            </div>
           )}
         </div>
-      )}
-    </div>
-  </div>
-  </>
+      </div>
+    </>
   );
 }

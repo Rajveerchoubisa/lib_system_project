@@ -10,12 +10,33 @@ export default function BookingForm() {
   const [months, setMonths] = useState(1);
   const [price, setPrice] = useState(500);
   const [bookingId, setBookingId] = useState(null);
+  const [availableSeats, setAvailableSeats] = useState(null);
+
   const navigate = useNavigate();
   const API = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
-    setPrice(months * 750); 
+    setPrice(months * 750);
   }, [months]);
+
+  useEffect(() => {
+    const fetchSeats = async () => {
+      try {
+        const { data } = await axios.get(`${API}/api/bookings/seats-left`);
+        if (data.success) {
+          setAvailableSeats(data.availableSeats);
+        }
+      } catch (err) {
+        console.error("Error fetching seats:", err);
+      }
+    };
+
+    fetchSeats();
+
+    // optional: auto-refresh every 5s
+    const interval = setInterval(fetchSeats, 5000);
+    return () => clearInterval(interval);
+  }, [API]);
 
   const loadRazorpayScript = () =>
     new Promise((resolve) => {
@@ -33,7 +54,6 @@ export default function BookingForm() {
       toast.error("Please select a joining date.");
       return;
     }
-    
 
     try {
       const { data } = await axios.post(
@@ -127,7 +147,9 @@ export default function BookingForm() {
 
           {/* Joining Date */}
           <div className="mb-5">
-            <label className="block mb-1 text-lg font-medium text-blue-200">Joining Date</label>
+            <label className="block mb-1 text-lg font-medium text-blue-200">
+              Joining Date
+            </label>
             <input
               type="date"
               value={joiningDate}
@@ -139,7 +161,9 @@ export default function BookingForm() {
 
           {/* Months */}
           <div className="mb-5">
-            <label className="block mb-1 text-lg font-medium text-blue-200">Number of Months</label>
+            <label className="block mb-1 text-lg font-medium text-blue-200">
+              Number of Months
+            </label>
             <input
               type="number"
               min={1}
@@ -149,10 +173,22 @@ export default function BookingForm() {
               required
             />
           </div>
+          {/* Seats Left */}
+          <p className="text-lg text-center mb-3">
+            Seats Left:{" "}
+            <span
+              className={`font-bold ${
+                availableSeats <= 5 ? "text-red-500" : "text-green-400"
+              }`}
+            >
+              {availableSeats !== null ? availableSeats : "Loading..."}
+            </span>
+          </p>
 
           {/* Price */}
           <p className="text-lg font-semibold text-center mb-5">
-            Total Price: <span className="text-blue-400 text-2xl">₹{price}</span>
+            Total Price:{" "}
+            <span className="text-blue-400 text-2xl">₹{price}</span>
           </p>
 
           {/* Booking Button */}
