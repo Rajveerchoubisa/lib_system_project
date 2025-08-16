@@ -208,12 +208,12 @@ export default function RenewForm() {
               </p>
 
               {message.includes("Booking renewed") && (
-                <a
-                  href="/my-booking"
+                <Link
+                  to="/my-booking"
                   className="inline-block bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow transition"
                 >
                   📚 Go to My Booking
-                </a>
+                </Link>
               )}
             </div>
           )}
