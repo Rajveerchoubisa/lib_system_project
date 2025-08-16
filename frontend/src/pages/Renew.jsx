@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Navbar from "../components/Navbar";
 
+
 export default function RenewForm() {
   const [booking, setBooking] = useState(null);
   const [months, setMonths] = useState(1);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+
   const API = import.meta.env.VITE_API_URL;
 
   const userInfo = (() => {
@@ -109,7 +111,7 @@ export default function RenewForm() {
               setMessage(
                 `✅ Booking renewed! New expiry: ${new Date(
                   updated.expiryDate
-                ).toLocaleDateString()}`
+                ).toLocaleDateString()} Check on the My Booking page`
               );
             } else {
               setMessage(verifyRes.data.message || "Verification failed.");
@@ -206,15 +208,6 @@ export default function RenewForm() {
               >
                 {message}
               </p>
-
-              {message.includes("Booking renewed") && (
-                <Link
-                  to="/my-booking"
-                  className="inline-block bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow transition"
-                >
-                  📚 Go to My Booking
-                </Link>
-              )}
             </div>
           )}
         </div>
