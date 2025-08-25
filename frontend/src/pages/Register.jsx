@@ -5,6 +5,7 @@ import { FaUser, FaEnvelope, FaLock, FaPhone } from "react-icons/fa";
 import axios from "axios";
 import LoginNavbar from "../components/LoginNavbar.jsx";
 import { toast } from "react-toastify";
+import PageWrapper from "../components/PageWrapper.jsx";
 
 export default function Register() {
   const [method, setMethod] = useState("email"); // 'email' or 'phone'
@@ -67,6 +68,7 @@ export default function Register() {
 
   return (
     <>
+      <PageWrapper>
       <LoginNavbar />
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-tr from-[#0f0c29] via-[#302b63] to-[#24243e] px-4">
         <motion.div
@@ -190,6 +192,7 @@ export default function Register() {
           </p>
         </motion.div>
       </div>
+      </PageWrapper>
     </>
   );
 }

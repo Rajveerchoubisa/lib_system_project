@@ -1,8 +1,11 @@
 import { Facebook, Instagram } from "lucide-react";
 import { Link } from "react-router-dom";
+import PageWrapper from "./PageWrapper";
 
 export default function Footer() {
   return (
+    <>
+    <PageWrapper>
     <footer className="bg-[#0f0c29] text-white border-t border-white/10">
       {/* Top Section */}
       <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 md:grid-cols-4 gap-10">
@@ -61,6 +64,8 @@ export default function Footer() {
         © {new Date().getFullYear()} SmartLibrary. All rights reserved.
       </div>
     </footer>
+    </PageWrapper>
+    </>
   );
 }
 

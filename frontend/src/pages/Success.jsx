@@ -1,8 +1,14 @@
 import { Link } from "react-router-dom";
 import { CheckCircle2, Home, BookOpen } from "lucide-react"; // Icons
+import Navbar from "../components/Navbar";
+import PageWrapper from "../components/PageWrapper";
 
 export default function Success() {
   return (
+    <>
+    <PageWrapper>
+    <Navbar />
+
     <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] px-4">
       <div className="bg-[#1e293b]/90 p-8 rounded-3xl shadow-2xl text-center border border-green-500/30 max-w-md w-full">
         {/* Success Icon */}
@@ -36,5 +42,7 @@ export default function Success() {
         </div>
       </div>
     </div>
+    </PageWrapper>
+    </>
   );
 }

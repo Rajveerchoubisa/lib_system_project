@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { UserCircle2, Mail } from "lucide-react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import PageWrapper from "../components/PageWrapper";
 
 export default function MyProfile() {
   const [user, setUser] = useState(null);
@@ -45,6 +46,7 @@ export default function MyProfile() {
 
   return (
     <>
+      <PageWrapper>
       <Navbar />
       <div className="min-h-screen bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] text-white px-6 py-24">
         <motion.div
@@ -78,6 +80,7 @@ export default function MyProfile() {
           </div>
         </motion.div>
       </div>
+      </PageWrapper>
     </>
   );
 }

@@ -2,6 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import PageWrapper from "./PageWrapper";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -11,6 +12,8 @@ export default function Navbar() {
   const closeMenu = () => setMenuOpen(false);
 
   return (
+    <>
+    <PageWrapper>
     <motion.nav
       className="fixed top-0 left-0 right-0 z-50 bg-black/60 backdrop-blur-lg border-b border-white/10 text-white"
       initial={{ y: -50, opacity: 0 }}
@@ -76,6 +79,8 @@ export default function Navbar() {
         )}
       </AnimatePresence>
     </motion.nav>
+    </PageWrapper>
+    </>
   );
 }
 

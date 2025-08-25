@@ -1,9 +1,11 @@
 import React from "react";
 import Navbar from "../components/Navbar";
+import PageWrapper from "./PageWrapper";
 
 const TermsOfService = () => {
   return (
     <>
+      <PageWrapper>
       <Navbar />
       <div className="min-h-screen bg-gradient-to-b mt-10 from-gray-100 to-gray-200 py-8 px-3 sm:px-4">
         <div className="max-w-5xl mx-auto bg-white shadow-lg rounded-2xl p-6 sm:p-8 md:p-12">
@@ -78,6 +80,7 @@ const TermsOfService = () => {
           </p>
         </div>
       </div>
+      </PageWrapper>
     </>
   );
 };

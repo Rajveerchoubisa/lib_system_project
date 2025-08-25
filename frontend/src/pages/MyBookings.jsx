@@ -98,6 +98,7 @@ import { CalendarCheck, Clock, MapPin } from "lucide-react";
 import axios from "axios";
 import Navbar from "../components/Navbar";
 import { toast } from "react-toastify";
+import PageWrapper from "../components/PageWrapper";
 
 export default function MyBookings() {
   const [bookings, setBookings] = useState([]);
@@ -127,6 +128,7 @@ export default function MyBookings() {
 
   return (
     <>
+      <PageWrapper>
       <Navbar />
       <div className="min-h-screen bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] text-white px-6 py-20">
         <h1 className="text-4xl mt-5 font-bold text-center mb-10">
@@ -194,6 +196,7 @@ export default function MyBookings() {
           )}
         </div>
       </div>
+      </PageWrapper>
     </>
   );
 }

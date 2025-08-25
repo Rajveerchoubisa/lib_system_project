@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Navbar from "../components/Navbar";
+import PageWrapper from "../components/PageWrapper";
 
 
 export default function RenewForm() {
@@ -142,6 +143,7 @@ export default function RenewForm() {
 
   return (
     <>
+      <PageWrapper>
       <Navbar />
       <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] px-4 py-8">
         
@@ -212,6 +214,7 @@ export default function RenewForm() {
           )}
         </div>
       </div>
+      </PageWrapper>
     </>
   );
 }

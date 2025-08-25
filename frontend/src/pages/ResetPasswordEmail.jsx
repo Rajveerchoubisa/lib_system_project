@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+import PageWrapper from "../components/PageWrapper";
 
 export default function ResetPasswordEmail() {
   const { token } = useParams();
@@ -24,6 +25,8 @@ export default function ResetPasswordEmail() {
   };
 
   return (
+    <>
+    <PageWrapper>
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900 px-4">
       <div className="w-full max-w-md bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-white/20">
         <h2 className="text-3xl font-extrabold text-center text-white mb-8">
@@ -67,5 +70,7 @@ export default function ResetPasswordEmail() {
         </div>
       </div>
     </div>
+    </PageWrapper>
+    </>
   );
 }

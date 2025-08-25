@@ -2,10 +2,12 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { BookOpenCheck, CalendarCheck, ReceiptText, Users } from "lucide-react";
 import Navbar from "../components/Navbar.jsx";
+import PageWrapper from "../components/PageWrapper.jsx";
 
 export default function Dashboard() {
   return (
     <>
+      <PageWrapper>
       <Navbar />
       <div className="min-h-screen bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] px-4 sm:px-6 py-10 text-white">
         <div className="mt-14 sm:mt-16">
@@ -81,6 +83,7 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+      </PageWrapper>
     </>
   );
 }

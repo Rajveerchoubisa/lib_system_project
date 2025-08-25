@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { BookOpen, Sparkles, CalendarCheck, Smile } from "lucide-react";
 import LoginNavbar from "../components/LoginNavbar"
+import PageWrapper from "../components/PageWrapper";
 
 const features = [
   {
@@ -32,7 +33,7 @@ const features = [
 export default function FeaturesPage() {
   return (
     <>
-
+    <PageWrapper>
     <LoginNavbar />
       <div className="min-h-screen bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] px-6 py-16 text-white">
         <motion.h1
@@ -67,6 +68,7 @@ export default function FeaturesPage() {
           ))}
         </div>
       </div>
+      </PageWrapper>
     </>
   );
 }

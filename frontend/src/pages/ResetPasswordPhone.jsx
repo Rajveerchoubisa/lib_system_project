@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import PageWrapper from "../components/PageWrapper";
 
 export default function ResetPasswordPhone() {
   const { search } = useLocation();
@@ -32,6 +33,8 @@ export default function ResetPasswordPhone() {
   };
 
   return (
+    <>
+      <PageWrapper>
    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-[#0f172a] to-gray-800 p-4">
   <div className="w-full max-w-md bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-white/10">
     {/* Title */}
@@ -82,6 +85,8 @@ export default function ResetPasswordPhone() {
     </p>
   </div>
 </div>
+</PageWrapper>
+</>
 
   );
 }

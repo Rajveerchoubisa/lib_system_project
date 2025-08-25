@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar.jsx";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import PageWrapper from "../components/PageWrapper.jsx";
 
 export default function BookingForm() {
   const [joiningDate, setJoiningDate] = useState("");
@@ -137,6 +138,7 @@ export default function BookingForm() {
 
   return (
     <>
+      <PageWrapper>
       <Navbar />
       <ToastContainer />
       <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] flex items-center justify-center px-4">
@@ -210,6 +212,7 @@ export default function BookingForm() {
           )}
         </div>
       </div>
+      </PageWrapper>
     </>
   );
 }

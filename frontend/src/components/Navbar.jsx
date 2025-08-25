@@ -3,6 +3,7 @@ import { LogOut, UserCircle, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import axios from "axios";
+import PageWrapper from "./PageWrapper";
 
 export default function DashboardNavbar() {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -20,6 +21,8 @@ export default function DashboardNavbar() {
   const closeMobileMenu = () => setMobileMenu(false);
 
   return (
+    <>
+    <PageWrapper>
     <header className="fixed top-0 left-0 w-full z-50 bg-[#0f0c29]/80 backdrop-blur-md border-b border-white/10">
       <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
         {/* Logo */}
@@ -177,6 +180,8 @@ export default function DashboardNavbar() {
         )}
       </AnimatePresence>
     </header>
+    </PageWrapper>
+    </>
   );
 }
 

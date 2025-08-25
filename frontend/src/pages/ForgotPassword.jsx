@@ -104,6 +104,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import PageWrapper from "../components/PageWrapper";
 
 const ForgotPassword = () => {
   const [method, setMethod] = useState("email"); // email or phone
@@ -151,6 +152,8 @@ const ForgotPassword = () => {
   };
 
   return (
+    <>
+    <PageWrapper >
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e]">
       <div className="bg-white/5 backdrop-blur-lg shadow-2xl rounded-2xl p-8 w-full max-w-md">
         <h1 className="text-3xl font-bold mb-6 text-center text-white">
@@ -222,6 +225,8 @@ const ForgotPassword = () => {
         </p>
       </div>
     </div>
+    </PageWrapper>
+    </>
   );
 };
 
