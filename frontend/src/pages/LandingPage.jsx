@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { BookOpenCheck, LogIn, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import LoginNavbar from "../components/LoginNavbar";
+import PageWrapper from "../components/PageWrapper.jsx";
 
 export default function Landing() {
   return (

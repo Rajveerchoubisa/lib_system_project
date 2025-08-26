@@ -1,6 +1,6 @@
 import React from "react";
 import Navbar from "../components/Navbar";
-import PageWrapper from "./PageWrapper";
+import PageWrapper from "../components/PageWrapper";
 
 const PrivacyPolicy = () => {
   return (
