@@ -112,8 +112,9 @@ export default function Register() {
                 Email
               </button>
               <button
+                disabled // button is disabled because phone otp is not working currently as there is no sms service provider
                 type="button"
-                className={`px-3 py-1 rounded-md ${
+                className={`px-3 py-1  rounded-md ${
                   method === "phone"
                     ? "bg-indigo-500 text-white"
                     : "bg-white/20 text-white/70"
@@ -123,7 +124,7 @@ export default function Register() {
                   setContact("");
                 }}
               >
-                Phone
+                Phone(Unavailable)
               </button>
             </div>
 
