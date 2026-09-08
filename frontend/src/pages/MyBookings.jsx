@@ -1,202 +1,48 @@
-// import { useEffect, useState } from "react";
-// import { motion } from "framer-motion";
-// import { CalendarCheck, Clock, MapPin } from "lucide-react";
-// import Navbar from "../components/Navbar";
-
-// const dummyBookings = [
-//   {
-//     id: 1,
-//     seat: "A12",
-//     room: "Room 1",
-//     date: "2025-07-01",
-//     time: "10:00 AM - 1:00 PM",
-//     status: "active",
-//   },
-//   {
-//     id: 2,
-//     seat: "B7",
-//     room: "Room 2",
-//     date: "2025-06-25",
-//     time: "2:00 PM - 5:00 PM",
-//     status: "past",
-//   },
-//   {
-//     id: 3,
-//     seat: "A4",
-//     room: "Room 1",
-//     date: "2025-06-20",
-//     time: "9:00 AM - 12:00 PM",
-//     status: "past",
-//   },
-// ];
-
-// export default function MyBookings() {
-//   const [bookings, setBookings] = useState([]);
-
-//   useEffect(() => {
-//     // Later replace this with actual backend call
-//     setBookings(dummyBookings);
-//   }, []);
-
-//   return (
-//     <>
-//     <Navbar />
-//     <div className="min-h-screen bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] text-white px-6 py-20">
-//       <h1 className="text-4xl mt-5 font-bold text-center mb-10">My Bookings</h1>
-
-//       <div className="max-w-4xl mx-auto space-y-6">
-//         {bookings.length === 0 ? (
-//           <p className="text-center text-white/70">You have no bookings yet.</p>
-//         ) : (
-//           bookings.map((booking) => (
-//             <motion.div
-//               key={booking.id}
-//               initial={{ opacity: 0, y: 20 }}
-//               animate={{ opacity: 1, y: 0 }}
-//               transition={{ duration: 0.5 }}
-//               className={`p-6 rounded-xl border border-white/10 shadow-md backdrop-blur-md bg-white/5 flex flex-col gap-2 ${
-//                 booking.status === "past" ? "opacity-60" : ""
-//               }`}
-//             >
-//               <div className="flex justify-between items-center">
-//                 <div className="text-lg font-semibold">
-//                   {booking.room} - Seat {booking.seat}
-//                 </div>
-//                 <span
-//                   className={`text-xs font-medium px-2 py-1 rounded-full ${
-//                     booking.status === "active"
-//                       ? "bg-green-500/20 text-green-400"
-//                       : "bg-gray-500/20 text-gray-400"
-//                   }`}
-//                 >
-//                   {booking.status === "active" ? "Upcoming" : "Past"}
-//                 </span>
-//               </div>
-//               <div className="flex items-center gap-4 text-sm text-white/80">
-//                 <div className="flex items-center gap-1">
-//                   <CalendarCheck className="w-4 h-4" /> {booking.date}
-//                 </div>
-//                 <div className="flex items-center gap-1">
-//                   <Clock className="w-4 h-4" /> {booking.time}
-//                 </div>
-//                 <div className="flex items-center gap-1">
-//                   <MapPin className="w-4 h-4" /> {booking.room}
-//                 </div>
-//               </div>
-//             </motion.div>
-//           ))
-//         )}
-//       </div>
-//     </div>
-//     </>
-//   );
-// }
-
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { CalendarCheck, Clock, MapPin } from "lucide-react";
 import axios from "axios";
-import Navbar from "../components/Navbar";
-import { toast } from "react-toastify";
-import PageWrapper from "../components/PageWrapper";
+import { Armchair, CalendarDays, Clock3, MapPin, Plus, RefreshCw } from "lucide-react";
+import { Link } from "react-router-dom";
+import Navbar from "../components/Navbar.jsx";
+import PageWrapper from "../components/PageWrapper.jsx";
+
+const API = import.meta.env.VITE_API_URL;
+const statusStyles = {
+  confirmed: "bg-emerald-400/10 text-emerald-300 border-emerald-400/20",
+  active: "bg-emerald-400/10 text-emerald-300 border-emerald-400/20",
+  held: "bg-amber-400/10 text-amber-300 border-amber-400/20",
+  payment_pending: "bg-amber-400/10 text-amber-300 border-amber-400/20",
+  expired: "bg-slate-400/10 text-slate-400 border-slate-400/20",
+  cancelled: "bg-rose-400/10 text-rose-300 border-rose-400/20",
+};
 
 export default function MyBookings() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const API = import.meta.env.VITE_API_URL;
-
   useEffect(() => {
-    const fetchBookings = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const { data } = await axios.get(`${API}/api/bookings/my`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setBookings(data.bookings || []);
-      } catch (error) {
-        //toast.error((error.response?.data?.message || "Unknown error"));
-        setBookings([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchBookings();
+    axios.get(`${API}/api/bookings/my`, { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
+      .then(({ data }) => setBookings(data.bookings || []))
+      .catch(() => setBookings([]))
+      .finally(() => setLoading(false));
   }, []);
 
   return (
-    <>
-      <PageWrapper>
-      <Navbar />
-      <div className="min-h-screen bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] text-white px-6 py-20">
-        <h1 className="text-4xl mt-5 font-bold text-center mb-10">
-          My Bookings
-        </h1>
-
-        <div className="max-w-4xl mx-auto space-y-6">
-          {loading ? (
-            <div className="flex flex-col items-center justify-center h-40">
-              <p className="text-center text-white/70">
-                Loading your bookings...
-              </p>
-              <div className="w-10 h-10 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
-            </div>
-          ) : bookings.length === 0 ? (
-            <p className="text-center justify-center items-center text-lg text-gray-200">
-              You have no bookings yet.
-            </p>
-          ) : (
-            bookings.map((booking) => (
-              <motion.div
-                key={booking._id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className={`p-6 rounded-xl border border-white/10 shadow-md backdrop-blur-md bg-white/5 flex flex-col gap-2 ${
-                  booking.status === "past" ? "opacity-60" : ""
-                }`}
-              >
-                {/* Top Row */}
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
-                  <div className="text-lg font-semibold">
-                    Your Booking
-                  </div>
-                  <span
-                    className={`self-start sm:self-auto text-xs font-medium px-2 py-1 rounded-full ${
-                      booking.status === "active"
-                        ? "bg-green-500/20 text-green-400"
-                        : "bg-gray-500/20 text-gray-400"
-                    }`}
-                  >
-                    {booking.status === "active" ? "Upcoming" : "Past"}
-                  </span>
-                </div>
-
-                {/* Details Row */}
-                <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 text-sm text-white/80 mt-2">
-                  <div className="flex items-center gap-1">
-                    <CalendarCheck className="w-4 h-4" />
-                    {new Date(booking.joiningDate).toLocaleDateString()}
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Clock className="w-4 h-4" /> {booking.months} month(s)
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <MapPin className="w-4 h-4" /> {booking.room || "Library"}
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <CalendarCheck className="w-4 h-4" />
-                    {new Date(booking.expiryDate).toLocaleDateString()}
-                  </div>
-                </div>
-              </motion.div>
-            ))
-          )}
-        </div>
-      </div>
-      </PageWrapper>
-    </>
+    <PageWrapper><Navbar /><main className="app-shell min-h-screen px-4 pb-20 pt-28 text-white sm:px-6 lg:px-8"><div className="mx-auto max-w-5xl">
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-sm font-medium text-indigo-300">Your study history</p><h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">Reservations</h1><p className="mt-2 text-slate-400">Review active, pending, and previous seat reservations.</p></div><Link to="/bookings" className="inline-flex items-center justify-center gap-2 self-start rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold hover:bg-indigo-500"><Plus size={17} /> Book a seat</Link></header>
+      <section className="mt-8 space-y-4">
+        {loading ? <Loading /> : bookings.length === 0 ? <Empty /> : bookings.map((booking) => <BookingCard key={booking._id} booking={booking} />)}
+      </section>
+    </div></main></PageWrapper>
   );
 }
+
+function BookingCard({ booking }) {
+  const canRenew = ["confirmed", "active"].includes(booking.status);
+  return <article className="surface-card p-5 transition hover:border-white/15 sm:p-6"><div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+    <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-indigo-500/10 text-indigo-300"><Armchair size={25} /></div>
+    <div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-3"><h2 className="text-lg font-semibold">Seat {booking.seatNumber || "Legacy"}</h2><span className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide ${statusStyles[booking.status] || statusStyles.expired}`}>{booking.status.replaceAll("_", " ")}</span></div><div className="mt-3 grid gap-2 text-sm text-slate-400 sm:grid-cols-3"><Info icon={MapPin}>{booking.section || "Main Library"}</Info><Info icon={CalendarDays}>{new Date(booking.joiningDate).toLocaleDateString()}</Info><Info icon={Clock3}>Until {new Date(booking.expiryDate).toLocaleDateString()}</Info></div></div>
+    {canRenew && <Link to="/renew" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-medium text-slate-200 hover:bg-white/5"><RefreshCw size={15} /> Renew</Link>}
+  </div></article>;
+}
+function Info({ icon: Icon, children }) { return <span className="flex items-center gap-2"><Icon size={15} className="text-slate-600" />{children}</span>; }
+function Loading() { return <div className="surface-card grid min-h-52 place-items-center"><div className="text-center"><span className="mx-auto block h-9 w-9 animate-spin rounded-full border-2 border-indigo-400 border-t-transparent" /><p className="mt-4 text-sm text-slate-500">Loading reservations…</p></div></div>; }
+function Empty() { return <div className="surface-card border-dashed py-16 text-center"><Armchair className="mx-auto text-slate-700" size={38} /><h2 className="mt-4 font-semibold">No reservations yet</h2><p className="mx-auto mt-2 max-w-sm text-sm text-slate-500">Your confirmed and previous bookings will appear here.</p><Link to="/bookings" className="mt-5 inline-flex text-sm font-semibold text-indigo-300">Find your first seat →</Link></div>; }

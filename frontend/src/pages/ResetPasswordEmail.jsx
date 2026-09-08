@@ -8,7 +8,7 @@ export default function ResetPasswordEmail() {
   const { token } = useParams();
   const navigate = useNavigate();
   const [newPassword, setNewPassword] = useState("");
-  const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false);
   const [confirm, setConfirm] = useState("");
  const API = import.meta.env.VITE_API_URL;
 
@@ -16,11 +16,14 @@ export default function ResetPasswordEmail() {
     if (!newPassword || !confirm) return toast.error("Please fill all fields");
     if (newPassword !== confirm) return toast.error("Passwords do not match");
     try {
+      setLoading(true);
       await axios.post(`${API}/api/auth/reset-password/${token}`, { newPassword });
       toast.success("Password reset successful");
       navigate("/login");
     } catch (err) {
       toast.error(err.response?.data?.message || "Reset failed");
+    } finally {
+      setLoading(false);
     }
   };
 

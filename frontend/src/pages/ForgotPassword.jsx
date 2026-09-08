@@ -127,7 +127,7 @@ const ForgotPassword = () => {
       const payload =
         method === "email" ? { email: contact } : { phone: contact };
 
-      const res = await axios.post(
+      await axios.post(
         `${API}/api/auth/forgot-password`,
         payload
       );

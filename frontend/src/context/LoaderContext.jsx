@@ -11,6 +11,7 @@ export function LoaderProvider({ children }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useLoader() {
   const ctx = useContext(LoaderContext);
   if (!ctx) {

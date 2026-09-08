@@ -38,7 +38,7 @@ export default function RenewForm() {
 
         const bookings = data.bookings || data;
         if (Array.isArray(bookings) && bookings.length > 0) {
-          setBooking(bookings[0]);
+          setBooking(bookings.find((item) => ["confirmed", "active"].includes(item.status)) || null);
         } else if (bookings && bookings._id) {
           setBooking(bookings);
         } else {

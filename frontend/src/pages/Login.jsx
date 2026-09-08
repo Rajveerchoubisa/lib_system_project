@@ -1,107 +1,24 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { Link, useNavigate } from "react-router-dom";
-import { FaUser, FaLock } from "react-icons/fa";
 import axios from "axios";
-import LoginNavbar from "../components/LoginNavbar.jsx";
+import { LockKeyhole, Mail } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import PageWrapper from "../components/PageWrapper.jsx";
+import AuthShell, { Field } from "../components/AuthShell.jsx";
 
 export default function Login() {
-  const [identifier, setIdentifier] = useState(""); // email or phone
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const API = import.meta.env.VITE_API_URL;
-
-  const handleLogin = async (e) => {
-    e.preventDefault();
+  const login = async (event) => {
+    event.preventDefault(); setLoading(true);
     try {
-      const res = await axios.post(`${API}/api/auth/login`, {
-        identifier,
-        password,
-      });
-
-      toast.success("You have successfully logged in!");
-      setTimeout(() => {
-        navigate("/dashboard");
-      }, 500);
-
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("userInfo", JSON.stringify(res.data));
-      axios.defaults.headers.common["Authorization"] = `Bearer ${res.data.token}`;
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Login failed");
-    }
+      const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/login`, { identifier, password });
+      localStorage.setItem("token", data.token); localStorage.setItem("userInfo", JSON.stringify(data));
+      axios.defaults.headers.common.Authorization = `Bearer ${data.token}`;
+      toast.success("Welcome back"); navigate("/dashboard");
+    } catch (error) { toast.error(error.response?.data?.message || "Login failed"); }
+    finally { setLoading(false); }
   };
-
-  return (
-    <>
-    <PageWrapper >
-      <LoginNavbar />
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-tr from-[#0f0c29] via-[#302b63] to-[#24243e] px-4">
-        <motion.div
-          className="bg-white/5 backdrop-blur-lg p-8 md:p-10 rounded-2xl shadow-2xl w-full max-w-md border border-white/10"
-          initial={{ y: -40, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.6 }}
-        >
-          <h2 className="text-3xl font-bold text-center text-white mb-8 tracking-wide">
-            Welcome Back
-          </h2>
-
-          <form className="space-y-6" onSubmit={handleLogin}>
-            {/* Email or Phone Input */}
-            <div className="relative">
-              <FaUser className="absolute top-3.5 left-3 text-white/50" />
-              <input
-                type="text"
-                value={identifier}
-                onChange={(e) => setIdentifier(e.target.value)}
-                placeholder="Email or Phone Number"
-                className="w-full pl-10 pr-4 py-2 bg-white/10 text-white border border-white/20 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400 placeholder-white/50"
-                required
-              />
-            </div>
-
-            {/* Password Input */}
-            <div className="relative">
-              <FaLock className="absolute top-3.5 left-3 text-white/50" />
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full pl-10 pr-4 py-2 bg-white/10 text-white border border-white/20 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400 placeholder-white/50"
-                required
-              />
-            </div>
-
-            {/* Submit Button */}
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.97 }}
-              type="submit"
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 rounded-md transition shadow-md"
-            >
-              Login
-            </motion.button>
-          </form>
-
-          {/* Auth Switch */}
-          <p>
-            <Link to="/forgot-password" className="text-indigo-400 hover:underline">
-              Forgot password?
-            </Link>
-          </p>
-          <p className="text-center text-white/60 text-sm mt-6">
-            Not registered yet?{" "}
-            <Link to="/register" className="text-indigo-400 hover:underline">
-              Create an account
-            </Link>
-          </p>
-        </motion.div>
-      </div>
-      </PageWrapper>
-    </>
-  );
+  return <AuthShell eyebrow="Secure member access" title="Welcome back" description="Sign in to manage your seat and get back to focused work."><form onSubmit={login} className="space-y-5"><Field label="Email or phone" icon={Mail} value={identifier} onChange={(event) => setIdentifier(event.target.value)} placeholder="you@example.com" autoComplete="username" required /><Field label="Password" icon={LockKeyhole} value={password} onChange={(event) => setPassword(event.target.value)} type="password" placeholder="Enter your password" autoComplete="current-password" required /><div className="flex justify-end"><Link to="/forgot-password" className="text-sm font-medium text-indigo-300 hover:text-indigo-200">Forgot password?</Link></div><button disabled={loading} className="w-full rounded-xl bg-indigo-600 py-3.5 font-semibold shadow-lg shadow-indigo-600/20 hover:bg-indigo-500 disabled:opacity-60">{loading ? "Signing in…" : "Sign in"}</button></form><p className="mt-6 text-center text-sm text-slate-500">New to SmartLibrary? <Link to="/register" className="font-semibold text-indigo-300 hover:text-indigo-200">Create an account</Link></p></AuthShell>;
 }

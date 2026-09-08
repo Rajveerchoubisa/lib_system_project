@@ -7,9 +7,14 @@ import bookingRoutes from "./routes/bookingRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import { startBookingExpiryJob } from "./jobs/bookingexpiry.js";
 import session from "express-session";
-startBookingExpiryJob();
+import { razorpayWebhook } from "./controllers/paymentController.js";
+import { ensureDefaultSeats } from "./services/seatSeeder.js";
 
 dotenv.config();
+const sessionSecret = process.env.SESSION_SECRET || process.env.JWT_SECRET;
+if (!sessionSecret) {
+  throw new Error("SESSION_SECRET or JWT_SECRET must be configured");
+}
 const app = express();
 app.use(
   cors({
@@ -17,12 +22,13 @@ app.use(
     credentials: true,
   })
 );
+app.post("/api/payment/webhook", express.raw({ type: "application/json" }), razorpayWebhook);
 app.use(express.json());
 app.use(
   session({
-    secret: "rajveer", // Replace with a strong secret
+    secret: sessionSecret,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     cookie: {
       maxAge: 5 * 60 * 1000, // 5 minutes
       secure: false, // set to true in production with HTTPS
@@ -35,9 +41,6 @@ app.use(
 
 
 
-connectDB();
-
-
 app.use("/api/auth", authRoutes);
 
 app.use("/api/bookings", bookingRoutes);
@@ -48,4 +51,15 @@ app.get("/", (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+async function startServer() {
+  await connectDB();
+  await ensureDefaultSeats();
+  startBookingExpiryJob();
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}
+
+startServer().catch((error) => {
+  console.error("Server startup failed:", error);
+  process.exit(1);
+});
