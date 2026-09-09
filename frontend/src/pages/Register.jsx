@@ -16,11 +16,11 @@ export default function Register() {
     try {
       const API = import.meta.env.VITE_API_URL;
       if (!otpSent) {
-        await axios.post(`${API}/api/auth/send-otp`, { email: form.email }, { withCredentials: true });
+        await axios.post(`${API}/api/auth/send-otp`, { email: form.email });
         setOtpSent(true); toast.success("Verification code sent");
       } else {
-        await axios.post(`${API}/api/auth/verify-otp`, { otp: form.otp }, { withCredentials: true });
-        await axios.post(`${API}/api/auth/register`, { name: form.name, email: form.email, password: form.password }, { withCredentials: true });
+        await axios.post(`${API}/api/auth/verify-otp`, { otp: form.otp, email: form.email });
+        await axios.post(`${API}/api/auth/register`, { name: form.name, email: form.email, password: form.password });
         toast.success("Account created. You can now sign in."); navigate("/login");
       }
     } catch (error) { toast.error(error.response?.data?.message || "Could not create account"); }

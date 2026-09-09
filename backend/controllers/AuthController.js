@@ -3,6 +3,12 @@ import generateToken from "../utils/generateToken.js";
 import { generateOTP } from "../utils/generateOTP.js";
 import { sendEmailOTP } from "../utils/emailService.js";
 import { sendSMSOTP } from "../utils/smsService.js";
+import VerificationCode from "../models/VerificationCode.js";
+import crypto from "crypto";
+
+const normalizeIdentifier = (email, phone) => (email || phone || "").trim().toLowerCase();
+const hashCode = (identifier, otp) =>
+  crypto.createHash("sha256").update(`${identifier}:${otp}`).digest("hex");
 
 export const sendOTP = async (req, res) => {
   const { email, phone } = req.body;
@@ -34,12 +40,16 @@ export const sendOTP = async (req, res) => {
       await sendSMSOTP(phoneNumber, otp);
     }
 
-    // Store OTP in session
-    req.session.otp = otp;
-    console.log("Session after setting OTP:", req.session);
-    req.session.email = email;
-    req.session.phone = phone;
-    req.session.otpExpiresAt = Date.now() + 5 * 60 * 1000; // 5 minutes
+    const identifier = normalizeIdentifier(email, phone);
+    await VerificationCode.findOneAndUpdate(
+      { identifier },
+      {
+        codeHash: hashCode(identifier, otp),
+        expiresAt: new Date(Date.now() + Number(process.env.OTP_EXPIRY_MIN || 5) * 60 * 1000),
+        $unset: { verifiedAt: 1 },
+      },
+      { upsert: true, new: true }
+    );
 
     return res.status(200).json({ success: true, message: "OTP sent" });
   } catch (error) {
@@ -49,31 +59,22 @@ export const sendOTP = async (req, res) => {
 };
 
 export const verifyOTP = async (req, res) => {
-  console.log("Session in verify:", req.session);
-  const { otp } = req.body;
+  const { otp, email, phone } = req.body;
+  const identifier = normalizeIdentifier(email, phone);
 
   // Check if OTP is provided
-  if (!otp) {
-    return res.status(400).json({ message: "OTP is required" });
+  if (!otp || !identifier) {
+    return res.status(400).json({ message: "OTP and email or phone are required" });
   }
 
-  // Check if session and stored OTP exist
-  if (!req.session || !req.session.otp || !req.session.otpExpiresAt) {
-    return res.status(400).json({ message: "No OTP session found" });
-  }
-
-  // Check if OTP has expired
-  if (Date.now() > req.session.otpExpiresAt) {
-    return res.status(400).json({ message: "OTP has expired" });
-  }
-
-  // Validate OTP
-  if (req.session.otp !== otp) {
-    return res.status(400).json({ message: "Invalid OTP" });
-  }
-
-  // Mark OTP as verified
-  req.session.otpVerified = true;
+  const record = await VerificationCode.findOne({
+    identifier,
+    codeHash: hashCode(identifier, otp),
+    expiresAt: { $gt: new Date() },
+  });
+  if (!record) return res.status(400).json({ message: "Invalid or expired OTP" });
+  record.verifiedAt = new Date();
+  await record.save();
 
   return res.status(200).json({ success: true, message: "OTP verified" });
 };
@@ -83,19 +84,14 @@ export const verifyOTP = async (req, res) => {
 export const registerUser = async (req, res) => {
   const { name, email, phone, password } = req.body;
 
-  if (!req.session?.otpVerified) {
-    return res.status(401).json({ message: "OTP verification required" });
-  }
-
-  if (email && req.session.email && req.session.email !== email) {
-    return res.status(401).json({ message: "Email mismatch" });
-  }
-
-  if (phone && req.session.phone && req.session.phone !== phone) {
-    return res.status(401).json({ message: "Phone mismatch" });
-  }
-
   try {
+    const identifier = normalizeIdentifier(email, phone);
+    const verification = await VerificationCode.findOne({
+      identifier,
+      verifiedAt: { $exists: true },
+      expiresAt: { $gt: new Date() },
+    });
+    if (!verification) return res.status(401).json({ message: "OTP verification required" });
     if (email && (await User.findOne({ email }))) {
       return res.status(400).json({ message: "Email already exists" });
     }
@@ -105,9 +101,7 @@ export const registerUser = async (req, res) => {
 
     const user = await User.create({ name, email, phone, password });
 
-    // Clear session
-    req.session.otp = null;
-    req.session.otpVerified = false;
+    await verification.deleteOne();
 
     res.status(201).json({
       _id: user._id,

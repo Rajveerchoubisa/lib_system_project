@@ -54,3 +54,12 @@ cd backend && npm test
 cd frontend && npm run lint
 cd frontend && npm run build
 ```
+
+## Vercel deployment
+
+The repository is deployed as two Vercel projects with `backend` and `frontend`
+as their respective root directories. The Express app exports its instance for
+Vercel Functions, OTP verification state is stored in MongoDB, and reservation
+cleanup runs through the protected cron route configured in `backend/vercel.json`.
+
+Production requires the variables documented in each directory's `.env.example`.

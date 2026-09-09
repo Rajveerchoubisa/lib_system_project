@@ -1,65 +1,66 @@
+import "dotenv/config";
 import express from "express";
-import dotenv from "dotenv";
 import cors from "cors";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
-import { startBookingExpiryJob } from "./jobs/bookingexpiry.js";
-import session from "express-session";
+import { expireReservations, startBookingExpiryJob } from "./jobs/bookingexpiry.js";
 import { razorpayWebhook } from "./controllers/paymentController.js";
 import { ensureDefaultSeats } from "./services/seatSeeder.js";
 
-dotenv.config();
-const sessionSecret = process.env.SESSION_SECRET || process.env.JWT_SECRET;
-if (!sessionSecret) {
-  throw new Error("SESSION_SECRET or JWT_SECRET must be configured");
-}
 const app = express();
-app.use(
-  cors({
-    origin: process.env.CLIENT_URL, // or whatever your frontend runs on
-    credentials: true,
-  })
-);
+const configuredOrigins = (process.env.CLIENT_URL || "")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+app.use(cors({
+  origin(origin, callback) {
+    const allowed = !origin || configuredOrigins.includes(origin) || /^https:\/\/[-a-z0-9]+\.vercel\.app$/i.test(origin);
+    callback(allowed ? null : new Error("Origin is not allowed by CORS"), allowed);
+  },
+  credentials: false,
+}));
+
+let databaseReady;
+app.use(async (req, res, next) => {
+  try {
+    databaseReady ||= connectDB().then(ensureDefaultSeats);
+    await databaseReady;
+    next();
+  } catch (error) {
+    databaseReady = undefined;
+    next(error);
+  }
+});
+
+// This route must receive the exact bytes sent by Razorpay.
 app.post("/api/payment/webhook", express.raw({ type: "application/json" }), razorpayWebhook);
-app.use(express.json());
-app.use(
-  session({
-    secret: sessionSecret,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      maxAge: 5 * 60 * 1000, // 5 minutes
-      secure: false, // set to true in production with HTTPS
-      httpOnly: true,
-    },
-  })
-);
-
-
-
-
+app.use(express.json({ limit: "100kb" }));
 
 app.use("/api/auth", authRoutes);
-
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/payment", paymentRoutes);
 
-app.get("/", (req, res) => {
-  res.send("Smart Library Backend Running");
+app.get("/api/health", (req, res) => res.json({ success: true, service: "smart-library-api" }));
+app.get("/api/cron/expire-reservations", async (req, res) => {
+  if (!process.env.CRON_SECRET || req.get("authorization") !== `Bearer ${process.env.CRON_SECRET}`) {
+    return res.status(401).json({ success: false, message: "Unauthorized" });
+  }
+  return res.json({ success: true, ...(await expireReservations()) });
 });
 
-const PORT = process.env.PORT || 5000;
+app.use((error, req, res, next) => {
+  console.error(error);
+  if (res.headersSent) return next(error);
+  return res.status(500).json({ success: false, message: "Internal server error" });
+});
 
-async function startServer() {
-  await connectDB();
-  await ensureDefaultSeats();
+if (!process.env.VERCEL) {
+  const port = process.env.PORT || 5000;
+  app.listen(port, () => console.log(`Server running on port ${port}`));
   startBookingExpiryJob();
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }
 
-startServer().catch((error) => {
-  console.error("Server startup failed:", error);
-  process.exit(1);
-});
+export default app;
